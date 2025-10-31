@@ -1,9 +1,11 @@
+
 import React, { useState, useCallback } from 'react';
 import { Clipboard, Download, FileText, Bot, UploadCloud, CheckCircle } from 'lucide-react';
 import { Tool, ExamDifficulty, ExamType } from '../types';
 import { generateContent } from '../services/geminiService';
 import ToolContainer from './shared/ToolContainer';
 import ActionButton from './shared/ActionButton';
+import FileUpload from './shared/FileUpload';
 
 const ExamMaker: React.FC = () => {
   const [difficulty, setDifficulty] = useState<ExamDifficulty>(ExamDifficulty.Medium);
@@ -14,13 +16,6 @@ const ExamMaker: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [isCopied, setIsCopied] = useState(false);
-
-  // Handle file input change
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      setSourceFile(event.target.files[0]);
-    }
-  };
   
   // Handle form submission to generate the exam
   const handleSubmit = useCallback(async () => {
@@ -67,6 +62,8 @@ const ExamMaker: React.FC = () => {
     setTimeout(() => setIsCopied(false), 2000);
   };
 
+  const acceptedFileTypes = "image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain";
+
   return (
     <ToolContainer 
       title="صانع الامتحانات" 
@@ -100,12 +97,11 @@ const ExamMaker: React.FC = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">أو ارفع ملفًا</label>
-              <label htmlFor="file-upload" className="w-full flex justify-center items-center px-4 py-3 bg-gray-800 text-gray-300 rounded-lg border-2 border-dashed border-gray-600 cursor-pointer hover:bg-gray-700 hover:border-purple-500 transition-colors">
-                <UploadCloud className="w-5 h-5 ml-2"/>
-                <span>{sourceFile ? sourceFile.name : 'اختر ملفًا'}</span>
-                <input id="file-upload" type="file" className="hidden" onChange={handleFileChange} accept="image/*,.pdf,.doc,.docx,.txt" />
-              </label>
+              <FileUpload
+                file={sourceFile}
+                onFileChange={setSourceFile}
+                acceptedTypes={acceptedFileTypes}
+              />
             </div>
             <ActionButton onClick={handleSubmit} disabled={isLoading}>
               {isLoading ? 'جاري الإنشاء...' : 'إنشاء الامتحان'}
